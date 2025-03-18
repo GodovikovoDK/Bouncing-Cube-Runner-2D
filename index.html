@@ -330,7 +330,7 @@ vkBridge.send('VKWebAppStorageGet', {
     if (highScore) {
       console.log(`Значение BestScore: ${highScore.value}`);
 	  //MyunityInstance.SendMessage('MyGameObject', 'setTextScore', highScore.value);
-	  MyunityInstance.SendMessage('GameManager', 'ShowBestScore', highScore.value);
+	  //MyunityInstance.SendMessage('GameManager', 'ShowBestScore', highScore.value);
     } else {
       console.error('Ключ BestScore не найден.');
     }
