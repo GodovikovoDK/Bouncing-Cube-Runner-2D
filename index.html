@@ -133,19 +133,30 @@ html, body {
 
       loadingBar.style.display = "block";
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                loadingBar.style.display = "none";
-              }).catch((message) => {
-                alert(message);
-              });
-            };
+let MyunityInstance = null;
+var script = document.createElement("script");
+script.src = loaderUrl;
+script.onload = function() {
+  console.log('Script loaded successfully');
+  
+  // Функция createUnityInstance будет вызвана после успешной загрузки скрипта
+  createUnityInstance(canvas, config, (progress) => {
+    progressBarFull.style.width = 100 * progress + '%';
+  })
+  .then((unityInstance) => {
+  MyunityInstance = unityInstance;
+    console.log('Unity instance created successfully'); // Проверка успешной инициализации Unity
+	//MyunityInstance.SendMessage('MyGameObject', 'setTextScore', 'Super string');
+    loadingBar.style.display = 'none';
+  })
+  .catch((message) => {
+    console.error('Error while creating Unity instance:', message); // Логирование ошибки
+    alert(message);
+  });
+};
 
-      document.body.appendChild(script);
+document.body.appendChild(script);
+	  
 vkBridge.send('VKWebAppInit')
   .then((data) => { 
     if (data.result) {
@@ -304,6 +315,32 @@ vkBridge.send('VKWebAppShowStoryBox', {
   })
 
          }
+		 
+	      function storageSet(key, value) {
+        vkBridge.send("VKWebAppStorageSet", {"key": key, "value": value});
+		      console.log("Сохранено - "+value+" "+key);
+      }
+
+function storageGet(key) {
+vkBridge.send('VKWebAppStorageGet', {
+  keys: ['BestScore']
+}).then(data => {
+  if (data.keys && data.keys.length > 0) {
+    const highScore = data.keys.find(key => key.key === 'BestScore');
+    if (highScore) {
+      console.log(`Значение BestScore: ${highScore.value}`);
+	  //MyunityInstance.SendMessage('MyGameObject', 'setTextScore', highScore.value);
+	  MyunityInstance.SendMessage('GameManager', 'ShowBestScore', highScore.value);
+    } else {
+      console.error('Ключ BestScore не найден.');
+    }
+  } else {
+    console.error('Нет сохраненных значений.');
+  }
+}).catch(error => {
+  console.error('Ошибка:', error);
+});
+} 
     </script>
   </body>
 </html>
